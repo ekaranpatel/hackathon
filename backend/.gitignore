@@ -1,5 +1,1 @@
-*.env
-**/.env
-.env
-backend/.env
-Labdynamic/.env
+ .env

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/Authcontext'; 
+import { useAuth } from '../../admin/context/Authcontext'; 
 import { useSocket } from '../context/SocketContext'; 
 import { BACKEND_URL } from '../pages/Api';
 
