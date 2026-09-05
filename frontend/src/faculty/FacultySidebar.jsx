@@ -99,23 +99,10 @@ export default function FacultySidebar({ user, handleLogout }) {
   ];
 
   return (
-    <aside className="w-64 min-h-screen h-screen sticky top-0 px-4 py-5 flex flex-col font-sans select-none border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <aside className="w-64 min-h-screen mt-6 rounded-xl h-screen sticky top-0 px-4 py-5 flex flex-col font-sans select-none border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       
       {/* Brand Header */}
-      <div className="flex items-center gap-3 px-1 mb-6 border-b border-white/5 pb-4">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white text-xl shadow-[0_0_18px_rgba(16,185,129,0.4)] shrink-0">
-          🧪
-        </div>
-        <div className="flex flex-col">
-          <span className="text-white font-bold text-base tracking-tight leading-tight">
-            LabSync
-          </span>
-          <span className="text-[10px] font-bold text-emerald-400 tracking-wider uppercase">
-            Faculty Portal
-          </span>
-        </div>
-      </div>
-
+      
       {/* Navigation Sections */}
       <nav className="flex flex-col gap-6 flex-grow">
         {menuSections.map((section) => (
