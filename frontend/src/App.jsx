@@ -2,7 +2,6 @@ import React from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-<<<<<<< HEAD
 import StudentDashboard from '../src/student/components/StudentDashboard';
 import Navbar from './navbar';
 import Sidebar from '../src/student/components/Sidebar';      
@@ -33,18 +32,6 @@ import ScheduleDetail from './faculty/pages/Scheduledetail'
 import FacultyLabBooking from "./faculty/pages/Labbooking"
 import { useAuth } from '../src/context/Authcontext'; 
 
-=======
-import StudentDashboard from '../src/student/components/StudentDashboard';  
-import NotificationBell from '../src/student/components/NotificationBell';
-import Navbar from '../src/navbar';
-import MyBookings from '../src/student/pages/MyBooking';
-import Sidebar from '../src/student/components/Sidebar';
-import Loginpage from '../src/student/pages/Loginpage';
-import StudentResourcePage from '../src/student/pages/Studentresource';
-import ResourceDetails from '../src/student/pages/ResourceDetailpage';      
-import { useAuth } from './context/Authcontext'; 
-import lab from '../src/admin/pages/Lab';
->>>>>>> ef1fb1feff348efffddc3c883186fbb88d133fd6
 export default function App() {
   const { user, loading, handleLogout } = useAuth();
   const location = useLocation();
