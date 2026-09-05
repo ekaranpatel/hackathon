@@ -116,19 +116,7 @@ export default function AdminSidebar({ user, handleLogout }) {
     <aside className="w-64 bg-[#0a0d18] border-r border-slate-800/80 h-screen sticky top-0 flex flex-col px-4 py-5 font-sans select-none overflow-y-auto">
       
       {/* Top Header / Branding */}
-      <div className="flex items-center gap-3 px-1 mb-8 mt-2">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#4f46e5] to-[#7c3aed] flex items-center justify-center text-white text-xl shadow-[0_0_18px_rgba(79,70,229,0.5)] shrink-0">
-          🧪
-        </div>
-        <div className="flex flex-col">
-          <span className="text-white font-bold text-base tracking-tight leading-tight">
-            LabSync
-          </span>
-          <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase bg-indigo-500/10 border border-indigo-500/20 px-1.5 py-0.5 rounded w-max mt-0.5">
-            Admin Portal
-          </span>
-        </div>
-      </div>
+    
 
       {/* Section Groups */}
       <div className="space-y-6 flex-1">
