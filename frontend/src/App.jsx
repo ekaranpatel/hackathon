@@ -2,8 +2,10 @@ import React from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-
+import StudentDashboard from '../src/student/components/StudentDashboard';  
+import NotificationBell from '../src/student/components/NotificationBell';
 import Navbar from '../src/navbar';
+import MyBookings from '../src/student/pages/MyBooking';
 import Sidebar from '../src/student/components/Sidebar';
 import Loginpage from '../src/student/pages/Loginpage';
 import StudentResourcePage from '../src/student/pages/Studentresource';
@@ -72,14 +74,13 @@ export default function App() {
             <Route path="/resources" element={<StudentResourcePage user={user} />} />
             <Route path="/Manual-login" element={<Loginpage />} />
             
-            {/* Support both singular and plural paths to prevent redirect wipes */}
-            {/* <Route path="/resource/:id" element={<ResourceDetails user={user} />} />
-            <Route path="/resources/:id" element={<ResourceDetails user={user} />} />
-            <Route path="/student/dashboard" element={<StudentDashboard user={user} />} />
+        
+            
+          <Route path="/student/dashboard" element={<StudentDashboard user={user} />} />
             <Route path="/notifications" element={<NotificationBell />} />
-            <Route path="/my-bookings" element={<MyBookings user={user} />} /> */}
+            <Route path="/my-bookings" element={<MyBookings user={user} />} /> 
 
-            {/* <Route path="/booking/:id" element={<BookingDetail user={user} />} /> */}
+             
             {/* Faculty Protected Routes */}
             
             {/* Catch-all Fallback */}
