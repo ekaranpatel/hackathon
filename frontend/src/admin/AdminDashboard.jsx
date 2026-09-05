@@ -151,7 +151,7 @@ export default function AdminDashboard() {
         <div className="space-y-2.5 text-xs text-slate-300">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span>12 Faculty lab booking requests pending</span>
+            <span>12 Fahhculty lbfab booking requests pending</span>
           </div>
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-amber-400" />
