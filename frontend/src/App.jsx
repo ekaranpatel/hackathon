@@ -39,7 +39,7 @@ export default function App() {
     <div className="min-h-screen bg-[#090d16] text-gray-100 flex flex-col">
       {/* ToastContainer placed at top level to ensure high z-index fixed positioning */}
       <ToastContainer 
-        position="top-right" 
+        position="top-right"
         theme="dark" 
         autoClose={3000} 
         pauseOnHover 
