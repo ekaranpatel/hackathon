@@ -31,7 +31,7 @@ const MyBookings = () => {
         throw new Error('Authentication token missing. Please log in again.');
       }
 
-      const baseUrl = BACKEND_URL ? BACKEND_URL.replace(/\/$/, '') : 'http://localhost:5000/api';
+      const baseUrl = BACKEND_URL ? BACKEND_URL.replace(/\/$/, '') : 'http://localhost:4000/api';
       const response = await fetch(`${baseUrl}/bookings/my-bookings`, {
         method: 'GET',
         headers: {
@@ -192,7 +192,7 @@ const MyBookings = () => {
 
     try {
       const token = getToken();
-      const baseUrl = BACKEND_URL ? BACKEND_URL.replace(/\/$/, '') : 'http://localhost:5000/api';
+      const baseUrl = BACKEND_URL ? BACKEND_URL.replace(/\/$/, '') : 'http://localhost:4000/api';
 
       const res = await fetch(`${baseUrl}/bookings/${bookingId}/cancel`, {
         method: 'PUT',

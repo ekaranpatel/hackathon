@@ -22,7 +22,7 @@ import FacultyLab from "./faculty/pages/FacultyLabs";
 import BookingDetail from "./student/pages/BookingDetail";
 import AdminFacultyRequest from "./admin/pages/FacultyRequest"
 import StudentRequest from "./admin/pages/StudentRequest";
-import MyBookings from "./faculty/pages/MyLabbooking";
+import MyBookings from "./student/pages/MyBooking";
 import FacultyNOtifications from "./faculty/pages/Notification";
 import StudentBookingRequest from "./faculty/pages/Bookingrequest";
 import Labbooking from "./faculty/pages/Labbooking"
