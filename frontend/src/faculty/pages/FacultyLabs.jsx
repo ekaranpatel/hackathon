@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BACKEND_URL } from '../../pages/Api';  
+import { BACKEND_URL } from '../../student/pages/Api'; // Adjust relative path to your Api file if needed
 import { FlaskConical, AlertCircle, RefreshCw, Layers, MapPin, Box, Users } from 'lucide-react';
 
 export default function FacultyLab({ user }) {

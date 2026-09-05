@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api'; // Adjust relative path to your Api file if needed
 
 const getToken = () => localStorage.getItem('labToken') || localStorage.getItem('token');
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/Authcontext';
 import { useSocket } from '../../context/SocketContext';
 import axios from 'axios';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api'; // Adjust relative path to your Api file if needed
 
 export default function FacultyDashboard() {
   const { user } = useAuth();

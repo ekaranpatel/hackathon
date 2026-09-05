@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BACKEND_URL } from '../pages/Api';
+import { BACKEND_URL } from '../../src/student/pages/Api';
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);

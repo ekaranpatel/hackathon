@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/Authcontext';
 import { useSocket } from '../../context/SocketContext';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api';
 
 export default function Bookingrequest() {
   const { user } = useAuth();

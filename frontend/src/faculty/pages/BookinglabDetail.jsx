@@ -16,7 +16,7 @@ import {
   Check,
   GraduationCap
 } from 'lucide-react';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api';
 
 // Available time options strictly between 09:00 AM and 05:00 PM
 const TIME_OPTIONS = [

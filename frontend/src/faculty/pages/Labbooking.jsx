@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FlaskConical, RefreshCw, AlertCircle } from 'lucide-react';
-import { BACKEND_URL } from '../../pages/Api'; // Adjust relative path to your Api file if needed
+import { BACKEND_URL } from '../../student/pages/Api'; // Adjust relative path to your Api file if needed
 import { LabCard } from '../components/Labcard';
 
 export default function LabBookingPage() {

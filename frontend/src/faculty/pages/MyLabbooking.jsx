@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api';
 
 export default function FacultyMyBookingsPage() {
   const [bookings, setBookings] = useState([]);

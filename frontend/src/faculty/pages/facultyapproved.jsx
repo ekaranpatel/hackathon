@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { BACKEND_URL } from '../../pages/Api'; // Adjust path to your Api file
+import { BACKEND_URL } from '../../student/pages/Api'; // Adjust path to your Api file
 
 const FacultyApprovedBookings = () => {
   const [bookings, setBookings] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { BACKEND_URL } from "../../pages/Api";
+import { BACKEND_URL } from "../../student/pages/Api";
 
 const DAY_SLOTS = [
   { id: '1', start: '09:00', end: '10:00', label: '09:00 AM - 10:00 AM' },

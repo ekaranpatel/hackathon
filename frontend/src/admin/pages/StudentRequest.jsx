@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSocket } from '../../context/SocketContext';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api';
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
