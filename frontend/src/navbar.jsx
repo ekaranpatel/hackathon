@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { useAuth } from '../context/Authcontext';
-// import NotificationBell from './NotificationBell';
+import { useAuth } from '../context/Authcontext';
+import NotificationBell from './student/components/NotificationBell';
 
 export default function Navbar({ user: propUser, handleLogout: propLogout, onSearch }) {
-//   const navigate = useNavigate();
-//   const auth = useAuth() || {};
+  const navigate = useNavigate();
+  const auth = useAuth() || {};
 
-  const user =0;
-  const handleLogout =null
+   const user = propUser || auth.user;
+  const handleLogout = propLogout || auth.logout;
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -51,7 +51,7 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
       {/* 3. Actions & Profile */}
       <div className="flex items-center gap-3 sm:gap-4">
      
-        {/* <NotificationBell /> */}
+        <NotificationBell />
 
         {/* Dark Mode */}
         <button 
