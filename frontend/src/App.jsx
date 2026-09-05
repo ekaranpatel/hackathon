@@ -1,6 +1,10 @@
 import Navbar from './navbar'
 import './App.css'
 import Sidebar from './student/pages/sidebar';
+import MyBookings from './student/pages/MyBooking';
+import ResourceDetailPage from './student/pages/ResourceDetailpage';
+import StudentResourcePage from './student/pages/studentresource';
+import StudentResourceCard from './student/components/StudentResourceCard';
 function App() {
   return (
     <div className="min-h-screen bg-[#0e1322] text-gray-300">
