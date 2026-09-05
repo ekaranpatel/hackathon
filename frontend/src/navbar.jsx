@@ -80,17 +80,30 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
           {/* User Logged In / Sign In Button */}
           {user ? (
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-[0_0_12px_rgba(6,182,212,0.4)]">
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm ring-2 ring-indigo-500/30">
                 {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
+
+              <div className="hidden md:flex flex-col text-left leading-tight">
+                <span className="text-sm font-semibold text-gray-200 truncate max-w-[120px]">
+                  {user.name ? user.name.split(' ')[0] : user.email?.split('@')[0]}
+                </span>
+                {user.role && (
+                  <span className="text-[10px] text-indigo-400 font-medium capitalize">
+                    {user.role}
+                  </span>
+                )}
+              </div>
+
               <button 
-                onClick={handleLogout}
-                className="text-xs font-semibold text-rose-300 bg-rose-500/10 border border-rose-500/30 hover:bg-rose-500/20 px-3.5 py-2 rounded-xl transition-all"
+                onClick={handleLogout} 
+                className="ml-1 text-xs font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
               >
-                Logout
+                <span>Logout</span>
+                <span>🚪</span>
               </button>
             </div>
-          ) : (
+          ): (
             <button 
               onClick={() => navigate('/Manual-login')}  
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-[#0072ff] via-[#4d5bf7] to-[#b026ff] hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(77,91,247,0.5)] border border-white/20"
