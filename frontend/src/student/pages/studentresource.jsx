@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
-// import { useResources } from '../Admin/services/Resource';
+import { useResources } from '../../admin/services/Resource';
 import StudentResourceCard from '../components/StudentResourceCard';
 import { BACKEND_URL } from '../pages/Api';
 // Helper function to resolve resource quantity safely across different schema styles
