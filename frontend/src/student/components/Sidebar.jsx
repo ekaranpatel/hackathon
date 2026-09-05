@@ -79,24 +79,9 @@ export default function Sidebar() {
   ];
 
   return (
-<aside className="w-64 min-h-screen px-4 py-5 flex flex-col gap-2 font-sans select-none border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300">
-      {/* Brand Header */}
-      {/* <div className="flex items-center gap-3 px-1 mb-4">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#2563eb] flex items-center justify-center text-white font-extrabold text-lg shadow-[0_0_18px_rgba(37,99,235,0.6)] shrink-0">
-          L
-        </div>
-        <div className="flex flex-col">
-          <span className="text-white font-bold text-base tracking-tight leading-tight">
-            CampusVault
-          </span>
-          <span className="text-[10px] font-bold text-cyan-400 tracking-wider uppercase">
-            Student Portal
-          </span>
-        </div>
-      </div> */}
-
+    <aside className="w-64 bg-[#0a0d18] rounded-2xl border-r border-slate-800/80 mt-5 min-h-screen px-4 py-5 flex flex-col gap-5 font-sans select-none">
       {/* Section Subtitle */}
-      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400/80 px-2 mt-1 mb-1">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400/80 px-2 mt-4 mb-1">
         Navigation Sidebar
       </div>
 
