@@ -124,7 +124,7 @@ export default function FacultySidebar({ user, handleLogout }) {
   ];
 
   return (
-    <aside className="w-64 min-h-screen mt-6 rounded-xl h-screen sticky top-0 px-4 py-5 flex flex-col font-sans select-none border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <aside className="w-64 min-h-screen mt-6 rounded-2xl h-screen sticky top-0 px-4 py-5 flex flex-col font-sans select-none border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       
       {/* Brand Header */}
       

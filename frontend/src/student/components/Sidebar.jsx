@@ -79,9 +79,9 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[#0a0d18] border-r border-slate-800/80 min-h-screen px-4 py-5 flex flex-col gap-2 font-sans select-none">
+    <aside className="w-64 bg-[#0a0d18] rounded-2xl border-r border-slate-800/80 mt-5 min-h-screen px-4 py-5 flex flex-col gap-5 font-sans select-none">
       {/* Section Subtitle */}
-      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400/80 px-2 mt-3 mb-1">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400/80 px-2 mt-4 mb-1">
         Navigation Sidebar
       </div>
 
