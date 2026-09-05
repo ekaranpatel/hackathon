@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/Authcontext';
+import NotificationBell from './student/components/NotificationBell';
 
 export default function Navbar({ user: propUser, handleLogout: propLogout, onSearch }) {
   const navigate = useNavigate();
+  const auth = useAuth() || {};
 
-  const user = propUser ?? 0;
-  const handleLogout = propLogout ?? null;
+   const user = propUser || auth.user;
+  const handleLogout = propLogout || auth.logout;
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -22,10 +25,31 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
         {/* Ambient Top Glow Line */}
         <div className="absolute inset-x-8 -top-[1px] h-[1px] bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 opacity-75 pointer-events-none" />
 
-        {/* 1. Logo */}
-        <div 
-          className="flex items-center gap-3.5 cursor-pointer select-none shrink-0"
-          onClick={() => navigate('/')}
+      {/* 2. Global Search Bar */}
+      <form onSubmit={handleSearchSubmit} className="hidden sm:block flex-1 max-w-md mx-6">
+        <div className="relative">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 text-xs">
+            🔍
+          </span>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search lab equipment, bookings, or token logs..."
+            className="w-full bg-[#161b2c] border border-gray-800 rounded-lg pl-9 pr-4 py-1.5 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+          />
+        </div>
+      </form>
+
+      {/* 3. Actions & Profile */}
+      <div className="flex items-center gap-3 sm:gap-4">
+     
+        <NotificationBell />
+
+        {/* Dark Mode */}
+        <button 
+          title="Toggle Theme"
+          className="p-2 text-gray-400 hover:text-gray-100 bg-[#161b2c] hover:bg-gray-800 border border-gray-800 rounded-lg text-sm transition-colors"
         >
           {/* Glass-style 'L' icon */}
           <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#3b82f6] to-[#8b5cf6] p-[1.5px] shadow-[0_0_18px_rgba(59,130,246,0.5)]">
