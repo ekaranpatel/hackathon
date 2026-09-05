@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { BACKEND_URL } from '../pages/Api';
+import { BACKEND_URL } from '../student/pages/Api';
 
 const AuthContext = createContext();
 

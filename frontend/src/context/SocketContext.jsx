@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { useAuth } from './Authcontext';
-import { BACKEND_URL } from '../pages/Api';
+import { BACKEND_URL } from '../student/pages/Api';
 
 const SOCKET_URL = BACKEND_URL ? BACKEND_URL.replace(/\/api\/?$/, '') : 'http://localhost:5000';
 
