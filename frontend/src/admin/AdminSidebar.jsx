@@ -137,7 +137,7 @@ export default function AdminSidebar({ user, handleLogout }) {
                     `group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl border transition-all duration-200 ${
                       isActive
                         ? item.activeStyle
-                        : `bg-[#0f1424]/90 border-slate-800/80 ${item.textColor} ${item.hoverBorder} hover:bg-[#131a30]`
+                        : `bg-[#03021e]/90 border-slate-800/80 ${item.textColor} ${item.hoverBorder} hover:bg-[#131a30]`
                     }`
                   }
                 >
@@ -161,7 +161,7 @@ export default function AdminSidebar({ user, handleLogout }) {
       <div className="mt-8 pt-4 border-t border-slate-800/80">
         <button
           onClick={handleLogout}
-          className="w-full group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl border border-slate-800/80 bg-[#0f1424]/90 text-rose-500 hover:border-rose-500/50 hover:bg-[#15111c] transition-all duration-200"
+          className="w-full group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl border border-slate-800/80  bg-[#03021e]/90 text-rose-500 hover:border-rose-500/50 hover:bg-[#15111c] transition-all duration-200"
         >
            <div className="w-8 h-8 rounded-xl bg-[#2a1622] flex items-center justify-center shrink-0 shadow-inner">
              <span className="text-sm select-none">🚪</span>

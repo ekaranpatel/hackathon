@@ -22,7 +22,7 @@ import FacultyLab from "./faculty/pages/FacultyLabs";
 import BookingDetail from "./student/pages/BookingDetail";
 import AdminFacultyRequest from "./admin/pages/FacultyRequest"
 import StudentRequest from "./admin/pages/StudentRequest";
-import MyBookings from "./faculty/pages/MyLabbooking";
+import MyBookings from "./student/pages/MyBooking";
 import FacultyNOtifications from "./faculty/pages/Notification";
 import StudentBookingRequest from "./faculty/pages/Bookingrequest";
 import Labbooking from "./faculty/pages/Labbooking"
@@ -58,7 +58,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-[#000021] text-gray-100 flex flex-col">
       {/* ToastContainer placed at top level to ensure high z-index fixed positioning */}
       <ToastContainer 
         position="top-right" 
@@ -71,7 +71,7 @@ export default function App() {
       <Navbar user={user} handleLogout={handleLogout} />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Render Sidebars based on Role */}
+        {/* Render Sidebars based on Rolee */}
         {isAdmin && <AdminSidebar user={user} handleLogout={handleLogout} />}
         {isFaculty && <FacultySidebar user={user} handleLogout={handleLogout} />}
         {!isAdmin && !isFaculty && <Sidebar user={user} />}
