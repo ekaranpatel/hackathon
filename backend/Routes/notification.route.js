@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getUserNotifications, markAsRead,markAllAsRead,clearAllNotifications } = require('../controllers/Notification.controller');
 // Import your existing auth middleware here
-const { verifyAppToken} = require('../middlerware/protect');
+const { verifyAppToken} = require('../middleware/protect');
 
 router.get('/', verifyAppToken, getUserNotifications);
 router.put('/:id/read', verifyAppToken, markAsRead);

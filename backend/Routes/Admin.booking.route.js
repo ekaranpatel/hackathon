@@ -7,7 +7,7 @@ const {
 } = require('../controllers/adminbooking.controller');
 
 // Middleware to verify JWT token and verify admin privileges
-const { verifyAppToken, authorizeRoles } = require('../middlerware/protect');
+const { verifyAppToken, authorizeRoles } = require('../middleware/protect');
 
 // GET /api/bookings/admin/all (Protected: Admin Only)
 router.get(

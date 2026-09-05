@@ -12,7 +12,7 @@ const {
 } = require('../controllers/Booking.controller');
 
 // Import authentication & role middleware
-const { verifyAppToken, authorizeRoles } = require('../middlerware/protect');
+const { verifyAppToken, authorizeRoles } = require('../middleware/protect');
 
 // Apply authentication to all booking routes
 router.use(verifyAppToken);

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BACKEND_URL } from '../../pages/Api';
+import { BACKEND_URL } from '../../student/pages/Api';
 const API_BASE_URL = BACKEND_URL;
 
 export const fetchUsers = async (filters = {}) => {
