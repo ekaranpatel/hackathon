@@ -2,12 +2,12 @@ import React from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import StudentDashboard from './pages/StudentDashboard';
-import Navbar from './components/Navbar';
+ 
+import Navbar from '../src/navbar';
 import Sidebar from '../src/student/components/Sidebar';
-import Loginpage from './pages/Loginpage';
-import StudentResourcePage from './pages/StudentResourcePage';
-import ResourceDetails from './pages/ResourceDetails';      
+import Loginpage from '../src/student/pages/Loginpage';
+import StudentResourcePage from '../src/student/pages/studentresource';
+import FacultySidebar from '../src/faculty/FacultySidebar';
 import { useAuth } from './context/Authcontext'; 
 
 export default function App() {
