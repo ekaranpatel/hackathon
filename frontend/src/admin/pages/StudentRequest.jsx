@@ -304,7 +304,7 @@ const AdminBookings = () => {
       {/* Realtime Notification Banner */}
       {notification && (
         <div className="bg-indigo-950/80 text-indigo-200 border border-indigo-500/40 px-4 py-3 rounded-xl mb-5 text-xs font-medium flex items-center gap-2 shadow-lg">
-          <span>🔔</span>
+           
           <span>{notification}</span>
         </div>
       )}
