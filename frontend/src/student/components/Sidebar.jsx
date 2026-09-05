@@ -79,7 +79,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[#0a0d18] border-r border-slate-800/80 min-h-screen px-4 py-5 flex flex-col gap-2 font-sans select-none">
+<aside className="w-64 min-h-screen px-4 py-5 flex flex-col gap-2 font-sans select-none border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300">
       {/* Brand Header */}
       {/* <div className="flex items-center gap-3 px-1 mb-4">
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#3b82f6] to-[#2563eb] flex items-center justify-center text-white font-extrabold text-lg shadow-[0_0_18px_rgba(37,99,235,0.6)] shrink-0">
@@ -110,7 +110,7 @@ export default function Sidebar() {
               `group flex items-center gap-3.5 px-3.5 py-3 rounded-2xl border transition-all duration-200 ${
                 isActive
                   ? item.activeStyle
-                  : `bg-[#0f1424]/90 border-slate-800/80 ${item.textColor} ${item.hoverBorder} hover:bg-[#131a30]`
+                  : `bg-[#03021e]/90 border-slate-800/80 ${item.textColor} ${item.hoverBorder} hover:bg-[#131a30]`
               }`
             }
           >
