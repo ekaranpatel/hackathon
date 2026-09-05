@@ -6,7 +6,9 @@ import { useAuth } from '../../context/Authcontext';
 export default function AuthPage({ onAuthSuccess }) {
   const { saveAuthSession } = useAuth();
   const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const REDIRECT_URI = window.location.origin;
+
+  // 🟢 Fix 1: Ensure exact clean origin without accidental trailing slash variations
+  const REDIRECT_URI = window.location.origin.replace(/\/$/, '');
   const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
@@ -37,12 +39,14 @@ export default function AuthPage({ onAuthSuccess }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🟢 Role Redirect (Handles case-insensitive roles: 'admin' or 'Admin')
+  // Role Redirect Handler
   const handleRoleRedirect = (userData) => {
     const role = userData?.role?.toLowerCase();
 
     if (role === 'admin') {
       navigate('/admin/dashboard');
+    } else if (role === 'faculty') {
+      navigate('/faculty/dashboard');
     } else {
       navigate('/resources');
     }
@@ -54,13 +58,11 @@ export default function AuthPage({ onAuthSuccess }) {
     setLoading(true);
     try {
       const res = await createUser(formData);
-      // Safely extract data whether backend service returns res.data or res
       const data = res.data || res;
 
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-      if (data.user) {
+      if (data.user && data.token) {
+        // 🟢 Fix 2: Use labToken consistently
+        localStorage.setItem('labToken', data.token);
         saveAuthSession(data.user, data.token);
       }
 
@@ -84,13 +86,11 @@ export default function AuthPage({ onAuthSuccess }) {
         password: formData.password
       });
 
-      // Safely extract data whether backend service returns res.data or res
       const data = res.data || res;
 
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-      if (data.user) {
+      if (data.user && data.token) {
+        // 🟢 Fix 2: Use labToken consistently
+        localStorage.setItem('labToken', data.token);
         saveAuthSession(data.user, data.token);
       }
 
