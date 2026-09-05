@@ -33,7 +33,7 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
           <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#3b82f6] to-[#8b5cf6] p-[1.5px] shadow-[0_0_18px_rgba(59,130,246,0.5)]">
             <div className="w-full h-full rounded-[10px] bg-gradient-to-b from-blue-500/90 to-indigo-600/90 flex items-center justify-center font-extrabold text-white text-lg tracking-tight">
               L
-            </div>
+            </div>  
           </div>
           <span className="font-bold text-xl text-white tracking-normal font-sans hidden sm:inline-block">
             LabDynamix
