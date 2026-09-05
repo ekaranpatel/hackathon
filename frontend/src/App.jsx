@@ -58,7 +58,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-gray-100 flex flex-col">
+    <div className="min-h-screen bg-[#000021] text-gray-100 flex flex-col">
       {/* ToastContainer placed at top level to ensure high z-index fixed positioning */}
       <ToastContainer 
         position="top-right" 

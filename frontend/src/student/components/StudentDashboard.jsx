@@ -165,7 +165,7 @@ export default function StudentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070b18] text-slate-100 p-4 sm:p-6 lg:p-7 font-sans">
+    <div className="min-h-screen  text-slate-100 p-4 sm:p-6 lg:p-7 font-sans">
       <div className="max-w-[1280px] mx-auto space-y-6">
 
         {/* Welcome Greeting Header */}
