@@ -11,7 +11,7 @@ import Loginpage from '../src/student/pages/Loginpage';
 import StudentResourcePage from '../src/student/pages/Studentresource';
 import ResourceDetails from '../src/student/pages/ResourceDetailpage';      
 import { useAuth } from './context/Authcontext'; 
-
+import lab from '../src/admin/pages/Lab';
 export default function App() {
   const { user, loading, handleLogout } = useAuth();
   const location = useLocation();
