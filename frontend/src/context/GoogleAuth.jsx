@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { BACKEND_URL } from "../pages/Api";
 
 export function UserLogin() {
   const navigate = useNavigate();
+  const oauthProcessedRef = useRef(false); // 🟢 FIX 1: Prevents double execution in React Strict Mode
 
-  // 1. Initialize state directly from localStorage
+  // Initialize state directly from localStorage
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem('labUser');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -19,20 +20,26 @@ export function UserLogin() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
 
-    if (code) {
+    // Run only if code exists AND hasn't been processed yet
+    if (code && !oauthProcessedRef.current) {
+      oauthProcessedRef.current = true;
       setLoading(true);
 
-      // Clean the ?code= parameter from browser URL
+      // Clean the ?code= parameter from browser URL immediately
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      // Exchange OAuth code with Express backend
-      axios.post(`${BACKEND_URL}/auth/google`, { code })
+      // 🟢 FIX 2: Send redirect_uri along with code to fix 'unauthorized_client'
+      const redirectUri = window.location.origin; // e.g. "http://localhost:5173"
+
+      axios.post(`${BACKEND_URL}/auth/google`, { 
+        code, 
+        redirect_uri: redirectUri 
+      })
         .then((res) => {
           const userData = res.data.user || res.data;
           const token = res.data.token || userData.token;
 
           if (userData && token) {
-            // Save using 'labUser' and 'labToken'
             localStorage.setItem('labUser', JSON.stringify(userData));
             localStorage.setItem('labToken', token);
 
@@ -57,19 +64,19 @@ export function UserLogin() {
         })
         .finally(() => setLoading(false));
     }
-  }, [BACKEND_URL, navigate]);
+  }, [navigate]);
 
   // --- EFFECT 2: Verify Existing Session / Token ---
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      // Skip running this check if we are currently processing an incoming OAuth code
+      // Skip session check if an incoming OAuth code is being processed
       if (urlParams.get('code')) return;
 
       const token = localStorage.getItem('labToken');
 
       // Guard against missing or "undefined" string tokens
-      if (!token || token === 'undefined') {
+      if (!token || token === 'undefined' || token === 'null') {
         localStorage.removeItem('labUser');
         localStorage.removeItem('labToken');
         setUser(null);
@@ -84,13 +91,11 @@ export function UserLogin() {
           }
         });
 
-        
         setUser(res.data);
         localStorage.setItem('labUser', JSON.stringify(res.data));
       } catch (err) {
         console.error("Session verification failed:", err.response?.data || err.message);
         
-      
         if (err.response && err.response.status === 401) {
           localStorage.removeItem('labUser');
           localStorage.removeItem('labToken');
@@ -102,7 +107,6 @@ export function UserLogin() {
     };
 
     fetchCurrentUser();
-  // 🔴 FIX: Empty array ensures this session check runs ONLY ONCE on page load, not on every re-render.
   }, []); 
 
   // Logout handler

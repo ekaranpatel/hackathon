@@ -5,6 +5,32 @@ import { BACKEND_URL } from '../student/pages/Api';
 
 const AuthContext = createContext();
 
+// 🟢 FIX 1: Configure Global Axios Interceptors for Bearer Token & 401 Loops
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('labToken');
+  if (token && token !== 'undefined' && token !== 'null') {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.warn('⚠️ Session expired or invalid token detected. Clearing auth state...');
+      localStorage.removeItem('labUser');
+      localStorage.removeItem('labToken');
+      
+      // Prevent infinite loops by redirecting to login
+      if (window.location.pathname !== '/Manual-login') {
+        window.location.href = '/Manual-login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const oauthProcessedRef = useRef(false); // Prevents React 18 StrictMode double execution
@@ -36,11 +62,13 @@ export function AuthProvider({ children }) {
       // Clean the ?code= parameter from browser URL bar immediately
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      // 🟢 Fix 1 & 2: Send request to /api/auth/google with explicit redirect_uri
+      // 🟢 Fix 2: Send code and explicit redirect_uri matching window.location.origin
+      const redirectUri = window.location.origin;
+
       axios
         .post(`${BACKEND_URL}/auth/google`, {
           code,
-          redirect_uri: window.location.origin, // e.g., "http://localhost:5173" or "https://lab-dynamix.vercel.app"
+          redirect_uri: redirectUri, 
         })
         .then((res) => {
           const userData = res.data.user || res.data;
@@ -64,7 +92,7 @@ export function AuthProvider({ children }) {
         })
         .catch((err) => {
           console.error('OAuth authentication error:', err.response?.data || err.message);
-          alert(err.response?.data?.message || 'Sign-in failed. Please try again.');
+          alert(err.response?.data?.message || 'Sign-in failed. Please check Google Cloud Console credentials.');
         })
         .finally(() => setLoading(false));
     }
@@ -78,7 +106,7 @@ export function AuthProvider({ children }) {
 
       const token = localStorage.getItem('labToken');
 
-      if (!token || token === 'undefined') {
+      if (!token || token === 'undefined' || token === 'null') {
         localStorage.removeItem('labUser');
         localStorage.removeItem('labToken');
         setUser(null);
@@ -87,18 +115,11 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        // 🟢 Fix 1: Route endpoint includes /api/auth
-        const res = await axios.get(`${BACKEND_URL}/auth/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const res = await axios.get(`${BACKEND_URL}/auth/me`);
         setUser(res.data);
         localStorage.setItem('labUser', JSON.stringify(res.data));
       } catch (err) {
         console.error('Session verification failed:', err.response?.data || err.message);
-
         if (err.response && err.response.status === 401) {
           localStorage.removeItem('labUser');
           localStorage.removeItem('labToken');
