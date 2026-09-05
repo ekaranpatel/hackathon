@@ -125,7 +125,7 @@ const getMe = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     const { name, email, password, role, category, department } = req.body;
-
+console.log('Received user creation request:', { name, email, role, category, department });
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'All required fields must be provided.' });
     }
