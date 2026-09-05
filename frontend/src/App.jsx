@@ -1,29 +1,92 @@
-import Navbar from './navbar'
-import './App.css'
-import Sidebar from './student/pages/sidebar';
-import MyBookings from './student/pages/MyBooking';
-import ResourceDetailPage from './student/pages/ResourceDetailpage';
-import StudentResourcePage from './student/pages/studentresource';
-import StudentResourceCard from './student/components/StudentResourceCard';
-function App() {
+import React from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import StudentDashboard from './pages/StudentDashboard';
+import Navbar from './components/Navbar';
+import Sidebar from '../src/student/components/Sidebar';
+import Loginpage from './pages/Loginpage';
+import StudentResourcePage from './pages/StudentResourcePage';
+import ResourceDetails from './pages/ResourceDetails';      
+import { useAuth } from './context/Authcontext'; 
+
+export default function App() {
+  const { user, loading, handleLogout } = useAuth();
+  const location = useLocation();
+
+  const hasOAuthCode = new URLSearchParams(location.search).has('code');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#090d16] flex items-center justify-center text-indigo-400 font-bold gap-2">
+        <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        Authenticating session with backend...
+      </div>
+    );
+  } 
+
+  const role = user?.role?.toLowerCase() || 'student';
+  const isAdmin = role === 'admin';
+  const isFaculty = role === 'faculty';
+
+  const getInitialRedirect = () => {
+    if (isAdmin) return '/admin/dashboard';
+    if (isFaculty) return '/faculty/dashboard';
+    return '/resources';  
+  };
+
   return (
-    <div className="min-h-screen bg-[#0e1322] text-gray-300">
-      <Navbar />
-      {/*student routes */}
-      <div className="flex">
-        <Sidebar />
-        <main className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-white mb-4">Welcome to LabDynamix</h1>
-          <p className="text-gray-400">
-            Your all-in-one platform for managing lab equipment and bookings.
-          </p>
+    <div className="min-h-screen bg-[#090d16] text-gray-100 flex flex-col">
+      {/* ToastContainer placed at top level to ensure high z-index fixed positioning */}
+      <ToastContainer 
+        position="top-right" 
+        theme="dark" 
+        autoClose={3000} 
+        pauseOnHover 
+        closeOnClick 
+      />
+
+      <Navbar user={user} handleLogout={handleLogout} />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Render Sidebars based on Role */}
+        {isAdmin && <AdminSidebar user={user} handleLogout={handleLogout} />}
+        {isFaculty && <FacultySidebar user={user} handleLogout={handleLogout} />}
+        {!isAdmin && !isFaculty && <Sidebar user={user} />}
+
+        <main className="flex-1 p-6 overflow-y-auto">
+          <Routes>
+            {/* Root Route Handler */}
+            <Route 
+              path="/" 
+              element={
+                hasOAuthCode ? (
+                  <div className="text-indigo-400 font-semibold p-4">Processing Google Login...</div>
+                ) : (
+                  <Navigate to={getInitialRedirect()} replace />
+                )
+              } 
+            />
+
+            {/* Student / Shared Routes */}
+            <Route path="/resources" element={<StudentResourcePage user={user} />} />
+            <Route path="/Manual-login" element={<Loginpage />} />
+            
+            {/* Support both singular and plural paths to prevent redirect wipes */}
+            {/* <Route path="/resource/:id" element={<ResourceDetails user={user} />} />
+            <Route path="/resources/:id" element={<ResourceDetails user={user} />} />
+            <Route path="/student/dashboard" element={<StudentDashboard user={user} />} />
+            <Route path="/notifications" element={<NotificationBell />} />
+            <Route path="/my-bookings" element={<MyBookings user={user} />} /> */}
+
+            {/* <Route path="/booking/:id" element={<BookingDetail user={user} />} /> */}
+            {/* Faculty Protected Routes */}
+            
+            {/* Catch-all Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
       </div>
     </div>
   );
 }
-
-export default App
-
-  
- 

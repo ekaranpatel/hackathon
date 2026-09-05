@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createUser, loginUser } from '../Admin/services/Userservice';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/Authcontext';
+import { useAuth } from '../../context/Authcontext';
 
 export default function AuthPage({ onAuthSuccess }) {
   const { saveAuthSession } = useAuth();
