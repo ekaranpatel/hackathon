@@ -30,6 +30,7 @@ import Labschedule from "./faculty/pages/Labschedule"
 import BookinglabDetail from "./faculty/pages/BookinglabDetail"
 import ScheduleDetail from './faculty/pages/Scheduledetail'
 import FacultyLabBooking from "./faculty/pages/Labbooking"
+import Notifications from "./student/components/Notification";
 import { useAuth } from '../src/context/Authcontext'; 
 
 export default function App() {
@@ -98,7 +99,7 @@ export default function App() {
             <Route path="/resource/:id" element={<ResourceDetails user={user} />} />
             <Route path="/resources/:id" element={<ResourceDetails user={user} />} />
             <Route path="/student/dashboard" element={<StudentDashboard user={user} />} />
-            <Route path="/notifications" element={<NotificationBell />} />
+            <Route path="/notifications" element={<Notifications user={user} />} />
             <Route path="/my-bookings" element={<MyBookings user={user} />} />
 
             <Route path="/booking/:id" element={<BookingDetail user={user} />} />
