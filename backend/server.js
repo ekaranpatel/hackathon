@@ -1,72 +1,33 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const http = require('http');
+ const http = require('http');
 const connectDB = require('./config/db');
-const { initSocket } = require('./socket');
-const labRoutes = require('./Routes/lab.route');
-const Resource = require('./models/Resource');
-const authRoutes = require('./Routes/auth.route');
-const resourceRoutes = require('./Routes/Resource.route');
-const { initCronJobs } = require('./config/cronService');
-const userRoutes = require('./Routes/Admin.user.route');
-const notificationRoutes = require('./Routes/notification.route');
-const bookingRoutes = require('./Routes/booking.route');
-const LabbookingRoutes = require('./Routes/Labbooking.route')
-const facultyRoutes = require('./Routes/Faculty.route');
-const adminBookingRoutes = require('./Routes/Admin.booking.route');
+ const { initSocket } = require('./socket');
 const app = express();
 
 connectDB();
 
-// 🟢 Dynamic CORS setup with safe callback & method handling
+ 
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:3000',
-  process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : null, // Strip trailing slashes
+ ,
+  process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : null,  
 ].filter(Boolean);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
-    if (!origin) return callback(null, true);
+ 
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
-
-// Apply CORS middleware globally
-app.use(cors(corsOptions));
+ 
+app.use(cors(allowedOrigins));
 
 app.use(express.json());
-
-// 1. Create HTTP Server
+ 
 const server = http.createServer(app);
 
-// 2. Attach Socket.io & bind to Express app
 const io = initSocket(server);
 app.set('io', io);
 
-initCronJobs();
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/labs', labRoutes);
-app.use('/api/resources', resourceRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/faculty', facultyRoutes);
-app.use('/api/bookings/admin', adminBookingRoutes);
-app.use('/api/lab-booking',LabbookingRoutes)
-// Root Health Check
+ 
 app.get('/', (req, res) => {
   res.send('LabDynamix API Engine is running...');
 });
@@ -85,5 +46,5 @@ async function syncAllResourceQuantities() {
 }
 const PORT = process.env.PORT || 5000;
 
-// Listen on `server`, NOT `app`
+ 
 server.listen(PORT, () => console.log(`🚀 Server & Socket.io listening on port ${PORT}`));
