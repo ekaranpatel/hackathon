@@ -83,7 +83,7 @@ async function syncAllResourceQuantities() {
     console.error('Migration error:', err.message);
   }
 }
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 // Listen on `server`, NOT `app`
 server.listen(PORT, () => console.log(`🚀 Server & Socket.io listening on port ${PORT}`));

@@ -4,7 +4,7 @@ const router = express.Router();
  
 const { googleAuth, getMe, createUser,loginUser } = require('../controllers/auth.controller');
  
-const { verifyAppToken } = require('../middlerware/protect'); 
+const { verifyAppToken } = require('../middleware/protect'); 
 
 router.post('/google', googleAuth);
 router.post('/create', createUser);  
