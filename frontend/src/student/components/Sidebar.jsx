@@ -79,11 +79,11 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[#0a0d18] rounded-2xl border-r border-slate-800/80 mt-5 min-h-screen px-4 py-5 flex flex-col gap-5 font-sans select-none">
-      {/* Section Subtitle */}
-      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400/80 px-2 mt-4 mb-1">
-        Navigation Sidebar
-      </div>
+   <aside className="w-64 min-h-screen mt-5 px-4 py-5 flex flex-col gap-5 font-sans select-none rounded-2xl border-r border-white/10 bg-gradient-to-br from-white/5 to-zinc-900/80 transition-all duration-300">
+  {/* Section Subtitle */}
+  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400/80 px-2 mt-4 mb-1">
+    Navigation Sidebar
+  </div>
 
       {/* Menu Cards */}
       <nav className="flex flex-col gap-2.5">
