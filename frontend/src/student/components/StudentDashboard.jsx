@@ -21,7 +21,7 @@ export default function StudentDashboard() {
 
   const [todaysBooking, setTodaysBooking] = useState(null);
 console.log("User object in StudentDashboard:", todaysBooking); // Debugging line
-  // Fetch live dashboard statistics & today's booking
+  // Fetch live dashboard statistics & today's bookings
   useEffect(() => {
     let isMounted = true;
 
