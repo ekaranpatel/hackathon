@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import {BACKEND_URL} from '../../pages/Api';
+import {BACKEND_URL} from '../../student/pages/Api';
 
  
 

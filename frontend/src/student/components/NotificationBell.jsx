@@ -41,7 +41,7 @@ export default function NotificationBell() {
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
-      </button>
+      </button> 
 
       {/* Popover Dropdown */}
       {isOpen && (
