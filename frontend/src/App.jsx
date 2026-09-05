@@ -71,7 +71,7 @@ export default function App() {
       <Navbar user={user} handleLogout={handleLogout} />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Render Sidebars based on Role */}
+        {/* Render Sidebars based on Rolee */}
         {isAdmin && <AdminSidebar user={user} handleLogout={handleLogout} />}
         {isFaculty && <FacultySidebar user={user} handleLogout={handleLogout} />}
         {!isAdmin && !isFaculty && <Sidebar user={user} />}
