@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { createBooking ,checkAvailability,getFacultyMyBookings,getLabScheduleByDate,getFacultyRequests,
-  approveBooking,} = require('../controllers/LabBooking.controoller');
-const { verifyAppToken,authorizeRoles } = require('../middlerware/protect'); // Auth check middleware
+  approveBooking,} = require('../controllers/Lab.booking.controller');
+const { verifyAppToken,authorizeRoles } = require('../middleware/protect'); // Auth check middleware
 
 
 router.post('/check-availability', verifyAppToken, checkAvailability);

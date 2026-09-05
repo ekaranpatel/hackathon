@@ -1,8 +1,8 @@
 // routes/facultyRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getFacultyPendingBookings, respondToBooking ,getApprovedBookings} = require('../controllers/Facultybooking');
-const { verifyAppToken, authorizeRoles } = require('../middlerware/protect'); // Express Auth Middlewares
+const { getFacultyPendingBookings, respondToBooking ,getApprovedBookings} = require('../controllers/faculty.booking');
+const { verifyAppToken, authorizeRoles } = require('../middleware/protect'); // Express Auth Middlewares
 
 // Added 'verifyAppToken' before 'authorizeRoles'
 router.get('/pending', verifyAppToken, authorizeRoles('Faculty', 'Admin'), getFacultyPendingBookings);

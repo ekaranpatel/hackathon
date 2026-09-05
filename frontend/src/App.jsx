@@ -8,6 +8,7 @@ import Sidebar from '../src/student/components/Sidebar';
 import Loginpage from '../src/student/pages/Loginpage';
 import StudentResourcePage from '../src/student/pages/studentresource';
 import FacultySidebar from '../src/faculty/FacultySidebar';
+import AdminSidebar from '../src/admin/AdminSidebar';
 import { useAuth } from './context/Authcontext'; 
 
 export default function App() {
