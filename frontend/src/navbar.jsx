@@ -19,26 +19,32 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
 
   return (
     <header className="sticky top-4 z-50 w-full px-4 sm:px-8 max-w-[1440px] mx-auto">
-      {/* Outer Floating Pill Bar */}
-      <nav className="relative flex items-center justify-between gap-4 sm:gap-6 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#030b20] via-[#05102d] to-[#040c24] border border-cyan-500/40 shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl">
-        
-        {/* Ambient Top Glow Line */}
-        <div className="absolute inset-x-8 -top-[1px] h-[1px] bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 opacity-75 pointer-events-none" />
+  {/* Outer Floating Pill Bar */}
+  <nav className="relative flex items-center justify-between gap-4 sm:gap-6 px-5 py-3 rounded-2xl bg-gradient-to-r from-[#030b20] via-[#05102d] to-[#040c24] border border-cyan-500/40 shadow-[0_10px_35px_rgba(0,0,0,0.6),0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-xl">
+    
+    {/* Ambient Top Glow Line */}
+    <div className="absolute inset-x-8 -top-[1px] h-[1px] bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 opacity-75 pointer-events-none" />
 
-        {/* 1. Brand Logo & Title */}
-        <div 
-          onClick={() => navigate('/')} 
-          className="flex items-center gap-3 cursor-pointer shrink-0"
-        >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#3b82f6] to-[#8b5cf6] p-[1.5px] shadow-[0_0_18px_rgba(59,130,246,0.5)]">
-            <div className="w-full h-full rounded-[10px] bg-gradient-to-b from-blue-500/90 to-indigo-600/90 flex items-center justify-center font-extrabold text-white text-lg tracking-tight">
-              L
-            </div>  
-          </div>
-          <span className="font-bold text-xl text-white tracking-normal font-sans hidden sm:inline-block">
-            LabDynamix
-          </span>
-        </div>
+    {/* 1. Brand Logo & Title */}
+    <div 
+      onClick={() => navigate('/')} 
+      className="flex items-center gap-3 cursor-pointer shrink-0"
+    >
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#3b82f6] to-[#8b5cf6] p-[1.5px] shadow-[0_0_18px_rgba(59,130,246,0.5)]">
+        <div className="w-full h-full rounded-[10px] bg-gradient-to-b from-blue-500/90 to-indigo-600/90 flex items-center justify-center font-extrabold text-white text-lg tracking-tight">
+          L
+        </div>  
+      </div>
+      
+      {/* Updated Text Section */}
+      <div className="font-bold text-xl tracking-normal font-sans hidden sm:inline-block">
+        <span className="text-white">Campus</span>
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500">
+          Vault
+        </span>
+      </div>
+    </div>
+  
 
         {/* 2. Global Glowing Search Bar */}
         <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xl mx-4">
