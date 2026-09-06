@@ -26,18 +26,22 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
     <div className="absolute inset-x-8 -top-[1px] h-[1px] bg-gradient-to-r from-cyan-400 via-indigo-500 to-fuchsia-500 opacity-75 pointer-events-none" />
 
     {/* 1. Brand Logo & Title */}
-    <div 
+{/* 1. Brand Logo & Title */}
+{/* 1. Brand Logo & Title */}
+<div 
       onClick={() => navigate('/')} 
       className="flex items-center gap-3 cursor-pointer shrink-0"
     >
-      <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#3b82f6] to-[#8b5cf6] p-[1.5px] shadow-[0_0_18px_rgba(59,130,246,0.5)]">
-        <div className="w-full h-full rounded-[10px] bg-gradient-to-b from-blue-500/90 to-indigo-600/90 flex items-center justify-center font-extrabold text-white text-lg tracking-tight">
-          L
-        </div>  
+      <div className="w-14 h-14 rounded-2xl bg-slate-950/60 border border-cyan-500/20 flex items-center justify-center">
+        <img 
+          src="/campus_vault_logo.svg" 
+          alt="Campus Vault logo" 
+          className="w-25 h-25"
+        />
       </div>
       
       {/* Updated Text Section */}
-      <div className="font-bold text-xl tracking-normal font-sans hidden sm:inline-block">
+      <div className="font-bold text-2xl tracking-normal font-sans hidden sm:inline-block">
         <span className="text-white">Campus</span>
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-violet-500 to-fuchsia-500">
           Vault
@@ -45,7 +49,6 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
       </div>
     </div>
   
-
         {/* 2. Global Glowing Search Bar */}
         <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xl mx-4">
           <div className="relative w-full rounded-xl p-[1px] bg-gradient-to-r from-cyan-500/60 via-blue-500/30 to-purple-500/60 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
