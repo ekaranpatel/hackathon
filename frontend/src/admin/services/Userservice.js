@@ -1,6 +1,8 @@
 import axios from 'axios';
-import { BACKEND_URL } from '../../student/pages/Api';
-const API_BASE_URL = BACKEND_URL;
+
+// Use the Vercel Environment Variable directly!
+// (The '||' provides a fallback for when you are testing locally on your machine)
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000/api';
 
 export const fetchUsers = async (filters = {}) => {
   const { role, status, search } = filters;
@@ -10,10 +12,8 @@ export const fetchUsers = async (filters = {}) => {
   return response.data;
 };
 
-
 export const loginUser = async (credentials) => {
   const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
-  
   
   if (response.data.token) {
     localStorage.setItem('token', response.data.token);
@@ -21,6 +21,7 @@ export const loginUser = async (credentials) => {
 
   return response.data; // Returns { message, token, user }
 };
+
 export const createUser = async (userData) => {
   const response = await axios.post(`${API_BASE_URL}/auth/create`, userData);
   return response.data;
@@ -32,7 +33,8 @@ export const updateUserRole = async (userId, role) => {
 };
 
 export const updateUserStatus = async (userId, status) => {
-  const response = await axios.patch(`${API_BASE_URL}/${userId}/status`, { status });
+  // FIX: Added /users/ to the path so it doesn't 404!
+  const response = await axios.patch(`${API_BASE_URL}/users/${userId}/status`, { status });
   return response.data;
 };
 
