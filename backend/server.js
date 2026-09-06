@@ -26,16 +26,12 @@ const allowedOrigins = [
   process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : null, // Strip trailing slashes
 ].filter(Boolean);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
-    if (!origin) return callback(null, true);
+// Replace your current allowedOrigins and corsOptions with this:
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error(`CORS Error: Origin ${origin} not allowed`));
-    }
+const corsOptions = {
+  // Temporarily accept ALL origins by always returning true
+  origin: function (origin, callback) {
+    callback(null, true); 
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
