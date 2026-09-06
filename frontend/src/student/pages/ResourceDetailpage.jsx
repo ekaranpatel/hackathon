@@ -26,6 +26,7 @@ const extractLabFromResource = (resObj) => {
 
   if (resObj.labId && typeof resObj.labId === 'object') return resObj.labId;
   if (resObj.lab && typeof resObj.lab === 'object') return resObj.lab;
+  
   if (Array.isArray(resObj.assignedLabs) && resObj.assignedLabs.length > 0) {
     const labItem = resObj.assignedLabs[0];
     if (typeof labItem === 'object') {
@@ -55,60 +56,78 @@ export default function ResourceDetailPage() {
   const initialDate = stateData.selectedDate || '';
   const initialSlot = stateData.selectedSlot || '';
 
-  const passedLab = extractLabFromResource(passedResource);
+  const targetResourceId = id || passedResource?._id || passedResource?.id;
 
   const [resource, setResource] = useState(passedResource);
-  const [labDetails, setLabDetails] = useState(passedLab);
+  const [labDetails, setLabDetails] = useState(() => extractLabFromResource(passedResource));
   const [isLoading, setIsLoading] = useState(!passedResource);
   const [fetchError, setFetchError] = useState('');
   const [availableCount, setAvailableCount] = useState(null);
   const [isAlreadyBooked, setIsAlreadyBooked] = useState(false);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [purpose, setPurpose] = useState('');
+
   const [currentDate, setCurrentDate] = useState(
     initialDate && initialDate !== 'Not Selected' ? initialDate : ''
   );
-  const [currentSlot, setCurrentSlot] = useState(
-    initialSlot && initialSlot !== 'Not Selected' ? initialSlot : ''
-  );
 
+  const resolveSlot = (slotValue) => {
+    if (!slotValue || slotValue === 'Not Selected') return '';
+    if (typeof slotValue === 'object') return slotValue;
+    
+    const foundSlot = FIXED_TIME_SLOTS.find(
+      (s) => s.label === slotValue || s.id === slotValue
+    );
+    return foundSlot || { id: 'slot-1', label: slotValue, startHour: 9 };
+  };
+
+  const [currentSlot, setCurrentSlot] = useState(() => resolveSlot(initialSlot));
   const [isEditingSlot, setIsEditingSlot] = useState(!currentDate || !currentSlot);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingStatus, setBookingStatus] = useState({ type: null, message: '' });
 
-  const targetResourceId = id || resource?._id;
+  // Sync state when location state changes dynamically
+  useEffect(() => {
+    if (passedResource) {
+      setResource(passedResource);
+      setLabDetails(extractLabFromResource(passedResource));
+    }
+    if (stateData.selectedDate && stateData.selectedDate !== 'Not Selected') {
+      setCurrentDate(stateData.selectedDate);
+    }
+    if (stateData.selectedSlot && stateData.selectedSlot !== 'Not Selected') {
+      const resolved = resolveSlot(stateData.selectedSlot);
+      setCurrentSlot(resolved);
+      setIsEditingSlot(false);
+    }
+  }, [location.state]);
 
-  // Extract total quantity vs lab-assigned quantity
-  const primaryAssignedLab = resource?.assignedLabs?.[0];
-  const labAssignedQuantity =
-    primaryAssignedLab?.assignedQuantity ??
-    resource?.assignedQuantity ??
-    resource?.totalQuantity ??
-    0;
-
-  // 1. Fetch resource details if not passed in location state
+  // Fetch full resource details from Backend
   useEffect(() => {
     let isMounted = true;
 
     const loadPageData = async () => {
       if (!targetResourceId) return;
       try {
-        setIsLoading(true);
-        const token = localStorage.getItem('token');
+        if (!resource) setIsLoading(true);
+        setFetchError('');
+
+        const token = localStorage.getItem('labToken') || localStorage.getItem('token');
         const response = await fetch(`${BACKEND_URL}/resources/${targetResourceId}`, {
           headers: {
+            'Content-Type': 'application/json',
             Authorization: token ? `Bearer ${token}` : '',
           },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch resource details');
+          throw new Error(`Failed to fetch resource details (${response.status})`);
         }
 
         const data = await response.json();
-        const resData = data.resource || data;
+        const resData = data.data || data.resource || data;
 
-        if (isMounted) {
+        if (isMounted && resData) {
           setResource(resData);
           setLabDetails(extractLabFromResource(resData));
         }
@@ -119,14 +138,31 @@ export default function ResourceDetailPage() {
       }
     };
 
-    if (!passedResource && targetResourceId) {
-      loadPageData();
-    }
+    loadPageData();
 
     return () => {
       isMounted = false;
     };
-  }, [targetResourceId, passedResource]);
+  }, [targetResourceId]);
+
+  const {
+    name = resource?.title || resource?.name || 'Resource Name',
+    category = resource?.category || 'Equipment',
+    imageUrl = resource?.image || resource?.imageUrl || resource?.imgUrl || '',
+    status = resource?.status || 'Available',
+    specifications = resource?.specifications || resource?.specs || resource?.hardwareSpecs || [],
+    safetyInstructions = resource?.safetyInstructions || resource?.rules || resource?.instructions || '',
+    description = resource?.description || resource?.details || '',
+    totalQuantity = resource?.quantity || resource?.totalQuantity || 0,
+  } = resource || {};
+
+  const primaryAssignedLab = resource?.assignedLabs?.[0];
+  const labAssignedQuantity =
+    primaryAssignedLab?.assignedQuantity ??
+    primaryAssignedLab?.quantity ??
+    resource?.assignedQuantity ??
+    totalQuantity ??
+    0;
 
   const slotObj =
     typeof currentSlot === 'object'
@@ -138,9 +174,9 @@ export default function ResourceDetailPage() {
         };
 
   const activeSlotId = slotObj.id || '';
-  const activeSlotLabel = slotObj.label || currentSlot;
+  const activeSlotLabel = slotObj.label || (typeof currentSlot === 'string' ? currentSlot : '');
 
-  // 2. Check slot availability on date or slot change
+  // Slot availability check
   useEffect(() => {
     let isMounted = true;
 
@@ -149,9 +185,11 @@ export default function ResourceDetailPage() {
 
       try {
         setIsCheckingAvailability(true);
-        const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const userId = user._id || user.id || '';
+        const token = localStorage.getItem('labToken') || localStorage.getItem('token');
+        const storedUser = JSON.parse(
+          localStorage.getItem('labUser') || localStorage.getItem('user') || '{}'
+        );
+        const userId = storedUser._id || storedUser.id || '';
 
         const queryParams = new URLSearchParams({
           date: currentDate,
@@ -172,7 +210,6 @@ export default function ResourceDetailPage() {
 
         if (response.ok && isMounted) {
           const data = await response.json();
-          // Use lab-specific available count from backend or calculate against lab assigned stock
           const backendAvailable = data.availableCount ?? data.remaining ?? null;
           const finalCount =
             backendAvailable !== null
@@ -197,87 +234,78 @@ export default function ResourceDetailPage() {
   }, [currentDate, activeSlotId, activeSlotLabel, targetResourceId, labAssignedQuantity]);
 
   const handleConfirmBooking = async () => {
-  if (!currentDate || !currentSlot) {
-    const msg = 'Please select both a date and a time slot.';
-    setBookingStatus({ type: 'error', message: msg });
-    toast.error(msg);
-    return;
-  }
-
-  if (!purpose.trim()) {
-    const msg = 'Please enter the purpose of your booking.';
-    setBookingStatus({ type: 'error', message: msg });
-    toast.error(msg);
-    return;
-  }
-
-  if (availableCount === 0) {
-    const msg = 'This slot is fully booked for this lab. Please select another slot.';
-    setBookingStatus({ type: 'error', message: msg });
-    toast.error(msg);
-    return;
-  }
-
-  try {
-    setIsSubmitting(true);
-    setBookingStatus({ type: null, message: '' });
-
-    // 💡 Read 'labToken' and 'labUser' (with fallback to legacy keys)
-    const token = localStorage.getItem('labToken') || localStorage.getItem('token');
-    const storedUser = JSON.parse(
-      localStorage.getItem('labUser') || localStorage.getItem('user') || '{}'
-    );
-    const userId = storedUser._id || storedUser.id || null;
-
-    const response = await fetch(`${BACKEND_URL}/bookings/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: token ? `Bearer ${token}` : '',
-      },
-      body: JSON.stringify({
-        user: userId,
-        resourceId: targetResourceId,
-        labId: labDetails?._id || primaryAssignedLab?.labId?._id || primaryAssignedLab?.labId,
-        dateISO: currentDate,
-        slotId: slotObj.id,
-        label: slotObj.label || slotObj,
-        startHour: slotObj.startHour || 9,
-        purpose: purpose.trim(),
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorMsg = data.message || 'Booking failed. Please try again.';
-      toast.error(errorMsg);
-      throw new Error(errorMsg);
+    if (!currentDate || !currentSlot) {
+      const msg = 'Please select both a date and a time slot.';
+      setBookingStatus({ type: 'error', message: msg });
+      toast.error(msg);
+      return;
     }
 
-    toast.success('Booking confirmed successfully!');
-    setBookingStatus({
-      type: 'success',
-      message: 'Booking successful! Redirecting to your bookings...',
-    });
+    if (!purpose.trim()) {
+      const msg = 'Please enter the purpose of your booking.';
+      setBookingStatus({ type: 'error', message: msg });
+      toast.error(msg);
+      return;
+    }
 
-    setTimeout(() => {
-      navigate('/my-bookings');
-    }, 1200);
-  } catch (err) {
-    setBookingStatus({ type: 'error', message: err.message });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-  const {
-    name = 'Resource Name',
-    category = 'Equipment',
-    imageUrl,
-    status = 'Available',
-    specifications = [],
-    safetyInstructions = '',
-  } = resource || {};
+    if (availableCount === 0) {
+      const msg = 'This slot is fully booked for this lab. Please select another slot.';
+      setBookingStatus({ type: 'error', message: msg });
+      toast.error(msg);
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setBookingStatus({ type: null, message: '' });
+
+      const token = localStorage.getItem('labToken') || localStorage.getItem('token');
+      const storedUser = JSON.parse(
+        localStorage.getItem('labUser') || localStorage.getItem('user') || '{}'
+      );
+      const userId = storedUser._id || storedUser.id || null;
+
+      const response = await fetch(`${BACKEND_URL}/bookings/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({
+          user: userId,
+          resourceId: targetResourceId,
+          labId: labDetails?._id || primaryAssignedLab?.labId?._id || primaryAssignedLab?.labId,
+          dateISO: currentDate,
+          slotId: slotObj.id,
+          label: slotObj.label || slotObj,
+          startHour: slotObj.startHour || 9,
+          purpose: purpose.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMsg = data.message || 'Booking failed. Please try again.';
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      toast.success('Booking confirmed successfully!');
+      setBookingStatus({
+        type: 'success',
+        message: 'Booking successful! Redirecting to your bookings...',
+      });
+
+      setTimeout(() => {
+        navigate('/my-bookings');
+      }, 1200);
+    } catch (err) {
+      setBookingStatus({ type: 'error', message: err.message });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const rawLab = labDetails || resource?.labId || resource?.lab || {};
 
@@ -419,6 +447,12 @@ export default function ResourceDetailPage() {
 
                 <h1 className="text-2xl font-bold text-slate-100">{name}</h1>
 
+                {description && (
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                    {description}
+                  </p>
+                )}
+
                 {Array.isArray(specifications) && specifications.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-800">
                     <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
@@ -453,7 +487,7 @@ export default function ResourceDetailPage() {
                     <div className="space-y-1 pt-1 text-slate-300">
                       <p>
                         <span className="text-slate-500 font-medium">Full Lab Address:</span>{' '}
-                        {labLocation}
+                        {typeof labLocation === 'object' ? `${labLocation.building || ''} ${labLocation.street || ''}` : labLocation}
                       </p>
                       {labContact && (
                         <p>
@@ -558,7 +592,10 @@ export default function ResourceDetailPage() {
                           <button
                             key={slot.id}
                             type="button"
-                            onClick={() => setCurrentSlot(slot)}
+                            onClick={() => {
+                              setCurrentSlot(slot);
+                              setIsEditingSlot(false);
+                            }}
                             className={`p-2.5 rounded-lg border text-left transition-all ${
                               isSelected
                                 ? 'bg-indigo-950/90 border-indigo-500 text-indigo-200 ring-1 ring-indigo-500'

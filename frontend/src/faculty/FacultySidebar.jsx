@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 export default function FacultySidebar({ user, handleLogout }) {
-  const location = useLocation();
+  
 
   // Top featured card routes with specialized styles
   const topFeaturedItems = [

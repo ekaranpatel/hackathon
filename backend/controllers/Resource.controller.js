@@ -93,7 +93,7 @@ exports.getBookingsByResource = async (req, res) => {
 // @route   POST /api/resources
 exports.createResource = async (req, res) => {
   try {
-    const { name, category, totalQuantity, status, imageUrl } = req.body;
+    const { name, category, totalQuantity, status, imageUrl, location } = req.body;
 
     const resource = new Resource({
       name,
@@ -101,7 +101,8 @@ exports.createResource = async (req, res) => {
       imageUrl: imageUrl || '',
       totalQuantity: Number(totalQuantity) || 1,
       status: status || 'Available',
-      assignedLabs: []
+      assignedLabs: [],
+      ...(location && { location: location.trim() }) // Only attach location if present
     });
 
     // Explicitly recalculate before save
@@ -117,7 +118,6 @@ exports.createResource = async (req, res) => {
     return res.status(400).json({ message: err.message });
   }
 };
-
 // @desc    Assign resource quantity to a Lab
 // @route   POST /api/resources/:id/assign
 exports.assignResourceToLab = async (req, res) => {

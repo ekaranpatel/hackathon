@@ -32,11 +32,11 @@ export default function Navbar({ user: propUser, handleLogout: propLogout, onSea
       onClick={() => navigate('/')} 
       className="flex items-center gap-3 cursor-pointer shrink-0"
     >
-      <div className="w-14 h-14 rounded-2xl bg-slate-950/60 border border-cyan-500/20 flex items-center justify-center">
+      <div className="w-10 h-10 rounded-2xl bg-slate-950/60 border border-cyan-500/20 flex items-center justify-center">
         <img 
           src="/campus_vault_logo.svg" 
           alt="Campus Vault logo" 
-          className="w-25 h-25"
+          className="w-20 h-20"
         />
       </div>
       

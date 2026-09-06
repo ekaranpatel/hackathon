@@ -28,11 +28,12 @@ export default function ResourceAdmin() {
   const [submitError, setSubmitError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form States
+  // Form States (Added 'location' field)
   const [formData, setFormData] = useState({
     name: '',
     category: CATEGORIES[0],
-    totalQuantity: 1
+    totalQuantity: 1,
+    location: ''
   });
 
   const [assignForm, setAssignForm] = useState({
@@ -69,7 +70,7 @@ export default function ResourceAdmin() {
 
   // Modal Triggers
   const handleOpenAdd = () => {
-    setFormData({ name: '', category: CATEGORIES[0], totalQuantity: 1 });
+    setFormData({ name: '', category: CATEGORIES[0], totalQuantity: 1, location: '' });
     setSubmitError(null);
     setActiveModal('ADD');
   };
@@ -93,10 +94,14 @@ export default function ResourceAdmin() {
     setIsSubmitting(true);
 
     try {
-      await addResource({
+      // Build payload and include location only if category is 'General'
+      const payload = {
         ...formData,
-        totalQuantity: Number(formData.totalQuantity)
-      });
+        totalQuantity: Number(formData.totalQuantity),
+        ...(formData.category === 'General' ? { location: formData.location } : {})
+      };
+
+      await addResource(payload);
       if (typeof refreshData === 'function') await refreshData();
       setActiveModal(null);
     } catch (err) {
@@ -305,6 +310,21 @@ export default function ResourceAdmin() {
                   />
                 </div>
               </div>
+
+              {/* Conditional Location Field for 'General' category */}
+              {formData.category === 'General' && (
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Location / Storage Spot</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full bg-[#161b2c] border border-gray-700 rounded-lg p-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500"
+                    placeholder="e.g. Main Store Room, Cabinet B-3"
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-800">
                 <button

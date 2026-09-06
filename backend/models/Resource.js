@@ -18,6 +18,8 @@ const resourceSchema = new mongoose.Schema(
     imageUrl: { type: String, default: '' },
     totalQuantity: { type: Number, default: 1, min: 0 },
     availableQuantity: { type: Number, default: 1 },
+    // Optional field: Stores physical storage/spot location (e.g., when category is 'General')
+    location: { type: String, trim: true, default: '' },
     status: {
       type: String,
       enum: ['Available', 'In Use', 'Maintenance'],
@@ -49,7 +51,9 @@ function computeAvailable(doc) {
     const qty = Number(
       item.assignedQuantity !== undefined
         ? item.assignedQuantity
-        : (item.quantity !== undefined ? item.quantity : 0)
+        : item.quantity !== undefined
+        ? item.quantity
+        : 0
     );
     return sum + (isNaN(qty) ? 0 : qty);
   }, 0);
@@ -61,12 +65,12 @@ resourceSchema.methods.recalculateAvailableQuantity = function () {
   return this.availableQuantity;
 };
 
-// Pre-save hook: Uses async/await (No 'next' needed)
+// Pre-save hook: Uses async/await
 resourceSchema.pre('save', async function () {
   this.availableQuantity = computeAvailable(this);
 });
 
-// Pre-update hook for findOneAndUpdate queries: Uses async/await (No 'next' needed)
+// Pre-update hook for findOneAndUpdate queries: Uses async/await
 resourceSchema.pre('findOneAndUpdate', async function () {
   const update = this.getUpdate();
   if (!update) return;
