@@ -62,9 +62,8 @@ export default function ResourceDetailPage() {
   const [labDetails, setLabDetails] = useState(() => extractLabFromResource(passedResource));
   const [isLoading, setIsLoading] = useState(!passedResource);
   const [fetchError, setFetchError] = useState('');
-  
-  // Map of slotId -> available count for live slot availability checking
-  const [slotAvailabilityMap, setSlotAvailabilityMap] = useState({});
+  const [availableCount, setAvailableCount] = useState(null);
+  const [isAlreadyBooked, setIsAlreadyBooked] = useState(false);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [purpose, setPurpose] = useState('');
 
@@ -73,7 +72,7 @@ export default function ResourceDetailPage() {
   );
 
   const resolveSlot = (slotValue) => {
-    if (!slotValue || slotValue === 'Not Selected') return null;
+    if (!slotValue || slotValue === 'Not Selected') return '';
     if (typeof slotValue === 'object') return slotValue;
 
     const foundSlot = FIXED_TIME_SLOTS.find(
@@ -82,13 +81,8 @@ export default function ResourceDetailPage() {
     return foundSlot || { id: 'slot-1', label: slotValue, startHour: 9 };
   };
 
-  // State for MULTIPLE slot selection
-  const [selectedSlots, setSelectedSlots] = useState(() => {
-    const resolved = resolveSlot(initialSlot);
-    return resolved ? [resolved] : [];
-  });
-
-  const [isEditingSlot, setIsEditingSlot] = useState(!currentDate || selectedSlots.length === 0);
+  const [currentSlot, setCurrentSlot] = useState(() => resolveSlot(initialSlot));
+  const [isEditingSlot, setIsEditingSlot] = useState(!currentDate || !currentSlot);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingStatus, setBookingStatus] = useState({ type: null, message: '' });
 
@@ -103,10 +97,8 @@ export default function ResourceDetailPage() {
     }
     if (stateData.selectedSlot && stateData.selectedSlot !== 'Not Selected') {
       const resolved = resolveSlot(stateData.selectedSlot);
-      if (resolved) {
-        setSelectedSlots([resolved]);
-        setIsEditingSlot(false);
-      }
+      setCurrentSlot(resolved);
+      setIsEditingSlot(false);
     }
   }, [location.state]);
 
@@ -172,26 +164,24 @@ export default function ResourceDetailPage() {
     totalQuantity ??
     0;
 
-  // Toggle selection for multiple slots
-  const handleToggleSlot = (slot) => {
-    setSelectedSlots((prev) => {
-      const exists = prev.some((s) => s.id === slot.id);
-      if (exists) {
-        return prev.filter((s) => s.id !== slot.id);
-      } else {
-        // Sort chronologically by start hour
-        const updated = [...prev, slot];
-        return updated.sort((a, b) => a.startHour - b.startHour);
-      }
-    });
-  };
+  const slotObj =
+    typeof currentSlot === 'object'
+      ? currentSlot
+      : FIXED_TIME_SLOTS.find((s) => s.label === currentSlot) || {
+          id: 'slot-1',
+          label: currentSlot,
+          startHour: 9,
+        };
 
-  // Fetch slot availability for all slots when currentDate changes
+  const activeSlotId = slotObj.id || '';
+  const activeSlotLabel = slotObj.label || (typeof currentSlot === 'string' ? currentSlot : '');
+
+  // Slot availability check
   useEffect(() => {
     let isMounted = true;
 
     const checkAvailability = async () => {
-      if (!targetResourceId || !currentDate) return;
+      if (!targetResourceId || !currentDate || !activeSlotLabel) return;
 
       try {
         setIsCheckingAvailability(true);
@@ -201,45 +191,33 @@ export default function ResourceDetailPage() {
         );
         const userId = storedUser._id || storedUser.id || '';
 
-        // Query availability for all fixed slots
-        const availabilityPromises = FIXED_TIME_SLOTS.map(async (slot) => {
-          const queryParams = new URLSearchParams({
-            date: currentDate,
-            timeSlot: slot.label,
-            slotId: slot.id,
-            userId: userId,
-          }).toString();
+        const queryParams = new URLSearchParams({
+          date: currentDate,
+          timeSlot: activeSlotLabel,
+          slotId: activeSlotId || '',
+          userId: userId,
+        }).toString();
 
-          const res = await fetch(
-            `${BACKEND_URL}/bookings/availability/${targetResourceId}?${queryParams}`,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: token ? `Bearer ${token}` : '',
-              },
-            }
-          );
-
-          if (res.ok) {
-            const data = await res.json();
-            const backendAvailable = data.availableCount ?? data.remaining ?? null;
-            const finalCount =
-              backendAvailable !== null
-                ? Math.min(backendAvailable, labAssignedQuantity)
-                : Math.max(0, labAssignedQuantity - (data.bookedCount || 0));
-            return { slotId: slot.id, available: finalCount };
+        const response = await fetch(
+          `${BACKEND_URL}/bookings/availability/${targetResourceId}?${queryParams}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token ? `Bearer ${token}` : '',
+            },
           }
-          return { slotId: slot.id, available: labAssignedQuantity };
-        });
+        );
 
-        const results = await Promise.all(availabilityPromises);
+        if (response.ok && isMounted) {
+          const data = await response.json();
+          const backendAvailable = data.availableCount ?? data.remaining ?? null;
+          const finalCount =
+            backendAvailable !== null
+              ? Math.min(backendAvailable, labAssignedQuantity)
+              : Math.max(0, labAssignedQuantity - (data.bookedCount || 0));
 
-        if (isMounted) {
-          const map = {};
-          results.forEach((item) => {
-            map[item.slotId] = item.available;
-          });
-          setSlotAvailabilityMap(map);
+          setAvailableCount(finalCount);
+          setIsAlreadyBooked(!!data.isBookedBySelf);
         }
       } catch (error) {
         console.error('Error fetching slot availability:', error);
@@ -253,16 +231,11 @@ export default function ResourceDetailPage() {
     return () => {
       isMounted = false;
     };
-  }, [currentDate, targetResourceId, labAssignedQuantity]);
-
-  // Check if any selected slot is fully booked
-  const hasFullyBookedSelectedSlot = selectedSlots.some(
-    (slot) => slotAvailabilityMap[slot.id] === 0
-  );
+  }, [currentDate, activeSlotId, activeSlotLabel, targetResourceId, labAssignedQuantity]);
 
   const handleConfirmBooking = async () => {
-    if (!currentDate || selectedSlots.length === 0) {
-      const msg = 'Please select a date and at least one time slot.';
+    if (!currentDate || !currentSlot) {
+      const msg = 'Please select both a date and a time slot.';
       setBookingStatus({ type: 'error', message: msg });
       toast.error(msg);
       return;
@@ -275,8 +248,8 @@ export default function ResourceDetailPage() {
       return;
     }
 
-    if (hasFullyBookedSelectedSlot) {
-      const msg = 'One or more selected slots are fully booked. Please unselect fully booked slots.';
+    if (availableCount === 0) {
+      const msg = 'This slot is fully booked for this lab. Please select another slot.';
       setBookingStatus({ type: 'error', message: msg });
       toast.error(msg);
       return;
@@ -292,30 +265,22 @@ export default function ResourceDetailPage() {
       );
       const userId = storedUser._id || storedUser.id || null;
 
-      const payload = {
-        user: userId,
-        resourceId: targetResourceId,
-        labId: labDetails?._id || primaryAssignedLab?.labId?._id || primaryAssignedLab?.labId,
-        dateISO: currentDate,
-        slots: selectedSlots.map((s) => ({
-          slotId: s.id,
-          label: s.label,
-          startHour: s.startHour,
-        })),
-        // Fallback fields for single-slot backend endpoints
-        slotId: selectedSlots[0].id,
-        label: selectedSlots[0].label,
-        startHour: selectedSlots[0].startHour,
-        purpose: purpose.trim(),
-      };
-
       const response = await fetch(`${BACKEND_URL}/bookings/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          user: userId,
+          resourceId: targetResourceId,
+          labId: labDetails?._id || primaryAssignedLab?.labId?._id || primaryAssignedLab?.labId,
+          dateISO: currentDate,
+          slotId: slotObj.id,
+          label: slotObj.label || slotObj,
+          startHour: slotObj.startHour || 9,
+          purpose: purpose.trim(),
+        }),
       });
 
       const data = await response.json();
@@ -326,7 +291,7 @@ export default function ResourceDetailPage() {
         throw new Error(errorMsg);
       }
 
-      toast.success(`Booking for ${selectedSlots.length} slot(s) confirmed successfully!`);
+      toast.success('Booking confirmed successfully!');
       setBookingStatus({
         type: 'success',
         message: 'Booking successful! Redirecting to your bookings...',
@@ -423,8 +388,8 @@ export default function ResourceDetailPage() {
     isSubmitting ||
     isCheckingAvailability ||
     !currentDate ||
-    selectedSlots.length === 0 ||
-    hasFullyBookedSelectedSlot;
+    !currentSlot ||
+    availableCount === 0;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -457,7 +422,6 @@ export default function ResourceDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Resource Banner & Info */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
               {imageUrl && (
                 <div className="h-56 w-full overflow-hidden relative">
@@ -545,19 +509,18 @@ export default function ResourceDetailPage() {
               </div>
             </div>
 
-            {/* Booking Schedule Picker */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
                   🗓️ Booking Schedule
                 </h2>
-                {currentDate && selectedSlots.length > 0 && (
+                {currentDate && currentSlot && (
                   <button
                     type="button"
                     onClick={() => setIsEditingSlot(!isEditingSlot)}
                     className="text-xs text-indigo-400 hover:text-indigo-300 font-medium underline"
                   >
-                    {isEditingSlot ? 'Done Editing' : '✏️ Change Selection'}
+                    {isEditingSlot ? 'Done Editing' : '✏️ Change Date or Slot'}
                   </button>
                 )}
               </div>
@@ -565,20 +528,19 @@ export default function ResourceDetailPage() {
               {!isEditingSlot ? (
                 <div className="bg-indigo-950/30 border border-indigo-800/50 rounded-lg p-3.5 flex items-center justify-between">
                   <div>
-                    <p className="text-[11px] text-slate-400">Selected Schedule ({selectedSlots.length} slot{selectedSlots.length > 1 ? 's' : ''})</p>
+                    <p className="text-[11px] text-slate-400">Selected Schedule</p>
                     <p className="text-sm font-bold text-indigo-300 mt-0.5">
-                      {currentDate}
+                      {currentDate} &nbsp;•&nbsp; {activeSlotLabel}
                     </p>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {selectedSlots.map((s) => (
-                        <span
-                          key={s.id}
-                          className="text-[11px] bg-indigo-900/80 border border-indigo-700 text-indigo-200 px-2 py-0.5 rounded"
-                        >
-                          {s.label}
-                        </span>
-                      ))}
-                    </div>
+                    {isCheckingAvailability ? (
+                      <p className="text-xs text-indigo-400 mt-1 animate-pulse">Checking availability...</p>
+                    ) : availableCount !== null ? (
+                      <p className={`text-xs font-semibold mt-1 ${availableCount > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {availableCount > 0
+                          ? `Lab Available Units: ${availableCount} / ${labAssignedQuantity}`
+                          : 'Fully Booked for this Slot'}
+                      </p>
+                    ) : null}
                   </div>
                   <button
                     onClick={() => setIsEditingSlot(true)}
@@ -602,7 +564,7 @@ export default function ResourceDetailPage() {
                             type="button"
                             onClick={() => {
                               setCurrentDate(day.dateISO);
-                              setSelectedSlots([]);
+                              setAvailableCount(null);
                             }}
                             className={`px-3 py-2 rounded-lg border text-xs whitespace-nowrap font-medium transition-all ${
                               isSelected
@@ -618,59 +580,38 @@ export default function ResourceDetailPage() {
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-semibold text-slate-300">
-                        2. Select Time Slots (Multiple selection allowed)
-                      </label>
-                      {selectedSlots.length > 0 && (
-                        <span className="text-[11px] font-medium text-indigo-400">
-                          {selectedSlots.length} slot({selectedSlots.length * 1} hour{selectedSlots.length > 1 ? 's' : ''}) selected
-                        </span>
-                      )}
-                    </div>
-
+                    <label className="text-xs font-semibold text-slate-300 block mb-2">
+                      2. Select 1-Hour Time Slot
+                    </label>
                     <div className="grid grid-cols-2 gap-2">
                       {FIXED_TIME_SLOTS.map((slot) => {
-                        const isSelected = selectedSlots.some((s) => s.id === slot.id);
-                        const available = slotAvailabilityMap[slot.id];
-                        const isSlotFullyBooked = available === 0;
+                        const isSelected =
+                          activeSlotLabel === slot.label ||
+                          (typeof currentSlot === 'object' && currentSlot?.id === slot.id);
 
                         return (
                           <button
                             key={slot.id}
                             type="button"
-                            onClick={() => handleToggleSlot(slot)}
-                            disabled={isSlotFullyBooked}
+                            onClick={() => {
+                              setCurrentSlot(slot);
+                              setIsEditingSlot(false);
+                            }}
                             className={`p-2.5 rounded-lg border text-left transition-all ${
-                              isSlotFullyBooked
-                                ? 'bg-slate-950/40 border-slate-800/40 text-slate-600 cursor-not-allowed opacity-60'
-                                : isSelected
-                                ? 'bg-indigo-950/90 border-indigo-500 text-indigo-200 ring-1 ring-indigo-500 shadow-sm'
+                              isSelected
+                                ? 'bg-indigo-950/90 border-indigo-500 text-indigo-200 ring-1 ring-indigo-500'
                                 : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
                             }`}
                           >
-                            <div className="flex items-center justify-between">
-                              <p className="text-xs font-medium">{slot.label}</p>
-                              <span className={`text-[10px] px-1.5 py-0.2 rounded ${isSelected ? 'bg-indigo-600 text-white font-bold' : 'text-slate-500'}`}>
-                                {isSelected ? '✓ Selected' : '+ Add'}
-                              </span>
-                            </div>
-                            <p
-                              className={`text-[10px] mt-1 font-semibold ${
-                                isSlotFullyBooked
-                                  ? 'text-rose-500'
-                                  : available !== undefined
-                                  ? 'text-emerald-400'
-                                  : 'text-slate-400'
-                              }`}
-                            >
-                              {isCheckingAvailability
-                                ? 'Checking...'
-                                : isSlotFullyBooked
-                                ? 'Fully Booked'
-                                : available !== undefined
-                                ? `${available}/${labAssignedQuantity} Available`
-                                : 'Available'}
+                            <p className="text-xs font-medium">{slot.label}</p>
+                            <p className="text-[10px] mt-0.5 font-semibold text-emerald-400">
+                              {isSelected
+                                ? isCheckingAvailability
+                                  ? 'Checking...'
+                                  : availableCount !== null
+                                  ? `${availableCount}/${labAssignedQuantity} Available`
+                                  : 'Selected'
+                                : 'Select'}
                             </p>
                           </button>
                         );
@@ -678,20 +619,19 @@ export default function ResourceDetailPage() {
                     </div>
                   </div>
 
-                  {currentDate && selectedSlots.length > 0 && (
+                  {currentDate && currentSlot && (
                     <button
                       type="button"
                       onClick={() => setIsEditingSlot(false)}
                       className="w-full py-2 bg-indigo-900/40 hover:bg-indigo-900/60 border border-indigo-700/50 text-indigo-300 text-xs font-semibold rounded-lg transition-colors mt-2"
                     >
-                      Done Selecting ({selectedSlots.length} slot{selectedSlots.length > 1 ? 's' : ''})
+                      Save Schedule Selection
                     </button>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Purpose */}
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
               <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider mb-1 flex items-center gap-2">
                 📝 Purpose of Booking <span className="text-rose-400">*</span>
@@ -727,7 +667,6 @@ export default function ResourceDetailPage() {
             </div>
           </div>
 
-          {/* Right Column: Dynamic Summary & Confirmation */}
           <div className="space-y-6">
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl sticky top-6">
               <h2 className="text-sm font-bold text-slate-100 uppercase tracking-wider mb-4 pb-2 border-b border-slate-800">
@@ -743,39 +682,19 @@ export default function ResourceDetailPage() {
                 </div>
 
                 <div className="p-3 bg-indigo-950/30 border border-indigo-800/50 rounded-lg">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-slate-400 text-[11px]">Selected Time Slots</span>
-                    <span className="text-[11px] font-bold text-indigo-300">
-                      Total: {selectedSlots.length} Hour{selectedSlots.length !== 1 ? 's' : ''}
-                    </span>
+                  <span className="text-slate-400 block text-[11px] mb-1">Time Slot</span>
+                  <div className="text-sm font-bold text-indigo-300">
+                    {activeSlotLabel || 'Not Selected'}
                   </div>
-
-                  {selectedSlots.length === 0 ? (
-                    <div className="text-xs text-slate-500 italic">No slots selected</div>
-                  ) : (
-                    <div className="space-y-1.5 mt-2">
-                      {selectedSlots.map((slot) => {
-                        const count = slotAvailabilityMap[slot.id];
-                        return (
-                          <div
-                            key={slot.id}
-                            className="flex items-center justify-between bg-slate-950/80 px-2.5 py-1.5 rounded border border-slate-800"
-                          >
-                            <span className="text-xs font-semibold text-indigo-200">
-                              {slot.label}
-                            </span>
-                            <span
-                              className={`text-[10px] font-bold ${
-                                count === 0 ? 'text-rose-400' : 'text-emerald-400'
-                              }`}
-                            >
-                              {count !== undefined ? `${count} left` : 'Available'}
-                            </span>
-                          </div>
-                        );
-                      })}
+                  {isCheckingAvailability ? (
+                    <div className="text-xs text-indigo-400 mt-1 animate-pulse">
+                      Updating availability...
                     </div>
-                  )}
+                  ) : availableCount !== null ? (
+                    <div className={`text-xs font-semibold mt-1 ${availableCount > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      Available: {availableCount} / {labAssignedQuantity} units
+                    </div>
+                  ) : null}
                 </div>
 
                 {purpose.trim() && (
@@ -806,11 +725,9 @@ export default function ResourceDetailPage() {
                     ? 'Confirming Booking...'
                     : isCheckingAvailability
                     ? 'Checking Availability...'
-                    : hasFullyBookedSelectedSlot
-                    ? 'Slot(s) Fully Booked'
-                    : selectedSlots.length > 0
-                    ? `Confirm & Book ${selectedSlots.length} Slot${selectedSlots.length > 1 ? 's' : ''}`
-                    : 'Select Slots to Book'}
+                    : availableCount === 0
+                    ? 'Slot Fully Booked'
+                    : 'Confirm & Book Now'}
                 </button>
               </div>
             </div>
